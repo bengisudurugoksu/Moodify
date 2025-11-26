@@ -34,14 +34,14 @@ venv.bak/
 # PyTorch & Transformers
 *.pth
 *.pt
-- *.bin
+# *.bin  ← BU SATIRI SİL (Git LFS ile yükleyeceğiz)
 *.ckpt
 checkpoint-*/
 runs/
 lightning_logs/
 
-# Model files (büyük dosyalar)
-- model/
+# Model files
+# model/  ← BU SATIRI SİL
 *.h5
 *.pkl
 *.joblib
@@ -56,13 +56,12 @@ lightning_logs/
 *.swp
 *.swo
 *~
-.DS_Store
 
-# Data files (eğer dataset'iniz varsa)
+# Data files
 data/
 *.csv
 *.json
-- *.txt
+# *.txt  ← BU SATIRI SİL (vocab.txt gerekli)
 *.tsv
 
 # Logs
