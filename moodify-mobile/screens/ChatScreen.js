@@ -38,6 +38,27 @@ const ChatScreen = ({ onBack }) => {
   const scrollViewRef = useRef(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  const featureCards = [
+    {
+      id: 1,
+      emoji: '🎵',
+      title: 'Mood-Based Playlists',
+      description: 'Tell us how you feel, get the perfect playlist',
+    },
+    {
+      id: 2,
+      emoji: '🎤',
+      title: 'Voice & Text',
+      description: 'Share your mood by typing or speaking',
+    },
+    {
+      id: 3,
+      emoji: '🎧',
+      title: 'Personalized Music',
+      description: 'AI-curated songs that match your vibe',
+    },
+  ];
+
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -108,6 +129,16 @@ const ChatScreen = ({ onBack }) => {
     setRecording((prev) => !prev);
   };
 
+  const handleFeatureCardPress = (card) => {
+    // Pre-fill input with example text based on card
+    const exampleTexts = {
+      1: "I'm feeling happy and energetic!",
+      2: "I need some calm music to relax",
+      3: "Give me something upbeat!",
+    };
+    setInputValue(exampleTexts[card.id]);
+  };
+
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <LinearGradient
@@ -159,6 +190,29 @@ const ChatScreen = ({ onBack }) => {
               <Text style={styles.loadingText}>
                 Finding the right sound for you…
               </Text>
+            </View>
+          )}
+
+          {/* Feature Cards - Only show when chat is empty or just initial message */}
+          {messages.length <= 1 && !isLoading && (
+            <View style={styles.featureCardsContainer}>
+              <Text style={styles.featureCardsTitle}>What Moodify Can Do</Text>
+              <View style={styles.featureCardsGrid}>
+                {featureCards.map((card) => (
+                  <TouchableOpacity
+                    key={card.id}
+                    style={styles.featureCard}
+                    activeOpacity={0.8}
+                    onPress={() => handleFeatureCardPress(card)}
+                  >
+                    <Text style={styles.featureCardEmoji}>{card.emoji}</Text>
+                    <Text style={styles.featureCardTitle}>{card.title}</Text>
+                    <Text style={styles.featureCardDescription}>
+                      {card.description}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
           )}
         </ScrollView>
@@ -266,6 +320,47 @@ const styles = StyleSheet.create({
     color: '#8B5FC7',
     fontStyle: 'italic',
   },
+  featureCardsContainer: {
+    marginTop: 24,
+    marginBottom: 16,
+  },
+  featureCardsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#6A2C91',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  featureCardsGrid: {
+    gap: 12,
+  },
+  featureCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1.5,
+    borderColor: 'rgba(157, 78, 221, 0.15)',
+    shadowColor: '#9D4EDD',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  featureCardEmoji: {
+    fontSize: 32,
+    marginBottom: 10,
+  },
+  featureCardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#4A0080',
+    marginBottom: 6,
+  },
+  featureCardDescription: {
+    fontSize: 13,
+    color: '#8B5FC7',
+    lineHeight: 18,
+  },
   inputArea: {
     paddingHorizontal: 16,
     paddingBottom: 16,
@@ -291,15 +386,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#4A0080',
-
     paddingVertical: 0,
     paddingTop: 0,
     paddingBottom: 0,
-
-    lineHeight: 18,          // ✅ prevents “ruled lines” look
+    lineHeight: 18,
     textAlignVertical: 'center',
-  }
-  ,
+  },
   micButton: {
     width: 36,
     height: 36,

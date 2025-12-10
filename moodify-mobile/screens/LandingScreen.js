@@ -8,6 +8,7 @@ import {
   Easing,
   Dimensions,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MicrophoneIcon from '../public/microphone.svg';
@@ -49,67 +50,132 @@ const LandingScreen = ({ onStart }) => {
     setRecording((prev) => !prev);
   };
 
+  const features = [
+    {
+      id: 1,
+      icon: '🎭',
+      title: 'Mood Analysis',
+      description: 'Share your feelings and let AI understand your emotional state',
+      color: '#9D4EDD',
+    },
+    {
+      id: 2,
+      icon: '🎵',
+      title: 'Smart Playlists',
+      description: 'Get personalized Spotify playlists that match your vibe',
+      color: '#BD86FA',
+    },
+    {
+      id: 3,
+      icon: '💬',
+      title: 'Natural Chat',
+      description: 'Express yourself freely - Moodify speaks your language',
+      color: '#C77DFF',
+    },
+  ];
+
   return (
     <LinearGradient
       colors={['#FAF7FF', '#F0E6FF']}
       style={styles.container}
     >
-      <View style={styles.content}>
-        <Animated.View
-          style={[
-            styles.logoContainer,
-            {
-              opacity: fadeAnim,
-              transform: [{ scale: scaleAnim }, { translateY: translateYAnim }],
-            },
-          ]}
-        >
-          <View style={styles.musicNoteIcon}>
-            <MusicArtistIcon width={50} height={50} fill="none" stroke="#9D4EDD" strokeWidth={2} />
-          </View>
-        </Animated.View>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.content}>
+          <Animated.View
+            style={[
+              styles.logoContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ scale: scaleAnim }, { translateY: translateYAnim }],
+              },
+            ]}
+          >
+            <View style={styles.musicNoteIcon}>
+              <MusicArtistIcon width={50} height={50} fill="none" stroke="#9D4EDD" strokeWidth={2} />
+            </View>
+          </Animated.View>
 
-        <Animated.View
-          style={[
-            styles.textContainer,
-            { opacity: fadeAnim, transform: [{ translateY: translateYAnim }] },
-          ]}
-        >
-          <Text style={styles.title}>Moodify</Text>
-          <Text style={styles.subtitle}>How are you feeling today?</Text>
-        </Animated.View>
+          <Animated.View
+            style={[
+              styles.textContainer,
+              { opacity: fadeAnim, transform: [{ translateY: translateYAnim }] },
+            ]}
+          >
+            <Text style={styles.title}>Moodify</Text>
+            <Text style={styles.subtitle}>How are you feeling today?</Text>
+          </Animated.View>
 
-        <Animated.View
-          style={[
-            styles.inputArea,
-            { opacity: fadeAnim, transform: [{ translateY: translateYAnim }] },
-          ]}
-        >
-          <View style={styles.inputWrapper}>
-            <TextInput
-              placeholder="Share your mood..."
-              placeholderTextColor="#C4A7E7"
-              style={styles.input}
-              multiline
-              underlineColorAndroid="transparent"
-              textAlignVertical="center"
-            />
-            <TouchableOpacity onPress={handleRecord} style={styles.micButton}>
-              <MicrophoneIcon width={20} height={20} fill="none" stroke={recording ? '#9D4EDD' : '#8B5FC7'} strokeWidth={2} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onStart} style={styles.sendButton}>
-              <SendIcon width={20} height={20} fill="#9D4EDD" />
-            </TouchableOpacity>
-          </View>
+          <Animated.View
+            style={[
+              styles.inputArea,
+              { opacity: fadeAnim, transform: [{ translateY: translateYAnim }] },
+            ]}
+          >
+            <View style={styles.inputWrapper}>
+              <TextInput
+                placeholder="Share your mood..."
+                placeholderTextColor="#C4A7E7"
+                style={styles.input}
+                multiline
+                underlineColorAndroid="transparent"
+                textAlignVertical="center"
+              />
+              <TouchableOpacity onPress={handleRecord} style={styles.micButton}>
+                <MicrophoneIcon width={20} height={20} fill="none" stroke={recording ? '#9D4EDD' : '#8B5FC7'} strokeWidth={2} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={onStart} style={styles.sendButton}>
+                <SendIcon width={20} height={20} fill="#9D4EDD" />
+              </TouchableOpacity>
+            </View>
 
-          <Text style={styles.description}>
-            Moodify turns your emotions into the perfect soundtrack.
-          </Text>
-        </Animated.View>
+            <Text style={styles.description}>
+              Moodify turns your emotions into the perfect soundtrack.
+            </Text>
+          </Animated.View>
 
-        <View style={styles.decorBlob1} />
-        <View style={styles.decorBlob2} />
-      </View>
+          {/* Feature Cards */}
+          <Animated.View
+            style={[
+              styles.featuresContainer,
+              { opacity: fadeAnim, transform: [{ translateY: translateYAnim }] },
+            ]}
+          >
+            {features.map((feature, index) => (
+              <Animated.View
+                key={feature.id}
+                style={[
+                  styles.featureCard,
+                  {
+                    opacity: fadeAnim,
+                    transform: [
+                      {
+                        translateY: translateYAnim.interpolate({
+                          inputRange: [0, 30],
+                          outputRange: [0, 30 + index * 10],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <View style={[styles.iconCircle, { backgroundColor: `${feature.color}15` }]}>
+                  <Text style={styles.featureIcon}>{feature.icon}</Text>
+                </View>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>{feature.title}</Text>
+                  <Text style={styles.featureDescription}>{feature.description}</Text>
+                </View>
+              </Animated.View>
+            ))}
+          </Animated.View>
+
+          <View style={styles.decorBlob1} />
+          <View style={styles.decorBlob2} />
+        </View>
+      </ScrollView>
     </LinearGradient>
   );
 };
@@ -117,8 +183,12 @@ const LandingScreen = ({ onStart }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 40,
   },
   content: {
     width: '100%',
@@ -180,12 +250,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#4A0080',
-
     paddingVertical: 0,
     paddingTop: 0,
     paddingBottom: 0,
-
-    lineHeight: 18,          // ✅ prevents “ruled lines” look
+    lineHeight: 18,
     textAlignVertical: 'center',
   },
   micButton: {
@@ -209,6 +277,51 @@ const styles = StyleSheet.create({
     color: '#8B5FC7',
     marginTop: 10,
     textAlign: 'center',
+  },
+  featuresContainer: {
+    width: '92%',
+    maxWidth: 380,
+    marginTop: 32,
+    gap: 16,
+  },
+  featureCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(157,78,221,0.15)',
+    shadowColor: '#9D4EDD',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  iconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  featureIcon: {
+    fontSize: 24,
+  },
+  featureContent: {
+    flex: 1,
+  },
+  featureTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#4A0080',
+    marginBottom: 4,
+  },
+  featureDescription: {
+    fontSize: 13,
+    color: '#8B5FC7',
+    lineHeight: 18,
   },
   decorBlob1: {
     position: 'absolute',
