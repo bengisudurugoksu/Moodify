@@ -17,7 +17,7 @@ export async function sendMessage(emotion) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        emotion,
+        text: emotion,
       }),
       timeout: CONFIG.API.TIMEOUT,
     });
