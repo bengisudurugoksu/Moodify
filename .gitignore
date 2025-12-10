@@ -60,7 +60,7 @@ lightning_logs/
 # Data files
 data/
 *.csv
-*.json
+trainer_state.json
 # *.txt  ← BU SATIRI SİL (vocab.txt gerekli)
 *.tsv
 
