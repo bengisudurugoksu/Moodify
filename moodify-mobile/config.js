@@ -17,7 +17,7 @@ export const CONFIG = {
     // BASE_URL: 'https://api.moodify.com',
     
     ENDPOINTS: {
-      GENERATE_RESPONSE: '/generate-response',
+      GENERATE_RESPONSE: '/api',
     },
     
     // Request timeout in milliseconds
