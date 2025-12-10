@@ -24,9 +24,6 @@
         "backgroundColor": "#FAF7FF"
       },
       "package": "com.zeynep.moodify"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     }
   }
 }
