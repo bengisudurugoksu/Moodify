@@ -16,6 +16,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MessageBubble from '../components/MessageBubble';
 import PlaylistCard from '../components/PlaylistCard';
 import { sendMessage } from '../utils/api';
+import MicrophoneIcon from '../public/microphone.svg';
+import SendIcon from '../public/send.svg';
+import BackIcon from '../public/back.svg';
 
 const { width, height } = Dimensions.get('window');
 
@@ -31,6 +34,7 @@ const ChatScreen = ({ onBack }) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [playlistData, setPlaylistData] = useState(null);
+  const [recording, setRecording] = useState(false);
   const scrollViewRef = useRef(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -99,6 +103,11 @@ const ChatScreen = ({ onBack }) => {
     }
   };
 
+  const handleRecord = () => {
+    // Handle audio recording logic
+    setRecording((prev) => !prev);
+  };
+
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <LinearGradient
@@ -114,10 +123,10 @@ const ChatScreen = ({ onBack }) => {
             style={styles.backButton}
             activeOpacity={0.7}
           >
-            <Text style={styles.backButtonText}>←</Text>
+            <BackIcon width={20} height={20} fill="#9D4EDD" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Moodify</Text>
-          <View style={{ width: 44 }} />
+          <View style={{ width: 36 }} />
         </View>
 
         {/* Messages Container */}
@@ -166,23 +175,23 @@ const ChatScreen = ({ onBack }) => {
               multiline
               maxLength={500}
               editable={!isLoading}
+              underlineColorAndroid="transparent"
+              textAlignVertical="center"
             />
+
+            <TouchableOpacity
+              onPress={handleRecord}
+              style={styles.micButton}
+            >
+              <MicrophoneIcon width={20} height={20} fill="none" stroke={recording ? '#9D4EDD' : '#8B5FC7'} strokeWidth={2} />
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
               activeOpacity={0.7}
-              style={styles.sendButtonWrapper}
+              style={styles.sendButton}
             >
-              <LinearGradient
-                colors={
-                  inputValue.trim() && !isLoading
-                    ? ['#9D4EDD', '#7B2CBF']
-                    : ['#D4B5F0', '#C4A7E7']
-                }
-                style={styles.sendButton}
-              >
-                <Text style={styles.sendButtonText}>↑</Text>
-              </LinearGradient>
+              <SendIcon width={20} height={20} fill="#9D4EDD" />
             </TouchableOpacity>
           </View>
         </View>
@@ -208,11 +217,11 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(157, 78, 221, 0.1)',
   },
   backButton: {
-    width: 44,
-    height: 44,
+    width: 36,
+    height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 22,
+    borderRadius: 18,
     backgroundColor: 'rgba(157, 78, 221, 0.1)',
   },
   backButtonText: {
@@ -282,11 +291,22 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#4A0080',
-    maxHeight: 100,
+
     paddingVertical: 0,
-  },
-  sendButtonWrapper: {
-    marginBottom: 4,
+    paddingTop: 0,
+    paddingBottom: 0,
+
+    lineHeight: 18,          // ✅ prevents “ruled lines” look
+    textAlignVertical: 'center',
+  }
+  ,
+  micButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(157, 78, 221, 0.1)',
   },
   sendButton: {
     width: 36,
@@ -294,11 +314,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  sendButtonText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontWeight: '700',
+    backgroundColor: 'rgba(157, 78, 221, 0.1)',
   },
 });
 

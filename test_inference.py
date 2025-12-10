@@ -608,6 +608,7 @@ print(f"   Min: {min(confidence_scores):.3f}")
 print(f"   Max: {max(confidence_scores):.3f}")
 print(f"   Median: {sorted(confidence_scores)[len(confidence_scores)//2]:.3f}")
 
+
 # Histogram gösterimi (opsiyonel)
 print(f"\n📊 Confidence Distribution:")
 bins = [0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 1.0]

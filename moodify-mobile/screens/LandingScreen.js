@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,9 @@ import {
   TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import MicrophoneIcon from '../public/microphone.svg';
+import SendIcon from '../public/send.svg';
+import MusicArtistIcon from '../public/music-artist.svg';
 
 const { width } = Dimensions.get('window');
 
@@ -17,6 +20,7 @@ const LandingScreen = ({ onStart }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const translateYAnim = useRef(new Animated.Value(30)).current;
+  const [recording, setRecording] = useState(false);
 
   useEffect(() => {
     Animated.parallel([
@@ -41,14 +45,16 @@ const LandingScreen = ({ onStart }) => {
     ]).start();
   }, []);
 
+  const handleRecord = () => {
+    setRecording((prev) => !prev);
+  };
+
   return (
     <LinearGradient
       colors={['#FAF7FF', '#F0E6FF']}
       style={styles.container}
     >
       <View style={styles.content}>
-
-        {/* LOGO */}
         <Animated.View
           style={[
             styles.logoContainer,
@@ -59,11 +65,10 @@ const LandingScreen = ({ onStart }) => {
           ]}
         >
           <View style={styles.musicNoteIcon}>
-            <Text style={styles.musicNoteText}>♪</Text>
+            <MusicArtistIcon width={50} height={50} fill="none" stroke="#9D4EDD" strokeWidth={2} />
           </View>
         </Animated.View>
 
-        {/* TEXT */}
         <Animated.View
           style={[
             styles.textContainer,
@@ -74,7 +79,6 @@ const LandingScreen = ({ onStart }) => {
           <Text style={styles.subtitle}>How are you feeling today?</Text>
         </Animated.View>
 
-        {/* INPUT BAR */}
         <Animated.View
           style={[
             styles.inputArea,
@@ -86,15 +90,15 @@ const LandingScreen = ({ onStart }) => {
               placeholder="Share your mood..."
               placeholderTextColor="#C4A7E7"
               style={styles.input}
+              multiline
+              underlineColorAndroid="transparent"
+              textAlignVertical="center"
             />
-            <Text style={styles.micIcon}>🎤</Text>
-            <TouchableOpacity
-              onPress={onStart}
-              activeOpacity={0.8}
-            >
-              <View style={styles.sendButton}>
-                <Text style={styles.sendText}>→</Text>
-              </View>
+            <TouchableOpacity onPress={handleRecord} style={styles.micButton}>
+              <MicrophoneIcon width={20} height={20} fill="none" stroke={recording ? '#9D4EDD' : '#8B5FC7'} strokeWidth={2} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onStart} style={styles.sendButton}>
+              <SendIcon width={20} height={20} fill="#9D4EDD" />
             </TouchableOpacity>
           </View>
 
@@ -103,7 +107,6 @@ const LandingScreen = ({ onStart }) => {
           </Text>
         </Animated.View>
 
-        {/* DECOR */}
         <View style={styles.decorBlob1} />
         <View style={styles.decorBlob2} />
       </View>
@@ -117,17 +120,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   content: {
     width: '100%',
     alignItems: 'center',
   },
-
   logoContainer: {
     marginTop: -70,
     marginBottom: 18,
   },
-
   musicNoteIcon: {
     width: 90,
     height: 90,
@@ -138,36 +138,26 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(157,78,221,0.3)',
   },
-
-  musicNoteText: {
-    fontSize: 42,
-    color: '#9D4EDD',
-  },
-
   textContainer: {
     alignItems: 'center',
     marginBottom: 18,
   },
-
   title: {
     fontSize: 44,
     fontWeight: '700',
     color: '#4A0080',
   },
-
   subtitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#6A2C91',
     marginTop: 6,
   },
-
   inputArea: {
     width: '100%',
     alignItems: 'center',
     marginTop: 10,
   },
-
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -184,42 +174,42 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 6,
+    gap: 10,
   },
-
   input: {
     flex: 1,
     fontSize: 14,
     color: '#4A0080',
-  },
 
-  micIcon: {
-    fontSize: 16,
-    opacity: 0.7,
-    marginRight: 10,
-  },
+    paddingVertical: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
 
-  sendButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#9D4EDD',
+    lineHeight: 18,          // ✅ prevents “ruled lines” look
+    textAlignVertical: 'center',
+  },
+  micButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(157, 78, 221, 0.1)',
   },
-
-  sendText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
+  sendButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(157, 78, 221, 0.1)',
   },
-
   description: {
     fontSize: 12,
     color: '#8B5FC7',
     marginTop: 10,
     textAlign: 'center',
   },
-
   decorBlob1: {
     position: 'absolute',
     width: 140,
@@ -229,7 +219,6 @@ const styles = StyleSheet.create({
     top: 90,
     left: -50,
   },
-
   decorBlob2: {
     position: 'absolute',
     width: 110,
@@ -242,3 +231,4 @@ const styles = StyleSheet.create({
 });
 
 export default LandingScreen;
+
