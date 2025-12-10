@@ -5,7 +5,7 @@ export const CONFIG = {
   // API Configuration
   API: {
     // Backend server URL - change this based on your environment
-    BASE_URL: 'http://localhost:3000',
+    BASE_URL: 'http://localhost:3001',
     
     // For Android emulator on local machine, use:
     // BASE_URL: 'http://10.0.2.2:3000',
