@@ -14,7 +14,9 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
+    "expo-av": "~13.10.6",
     "express": "^5.1.0",
+    "multer": "^2.0.2",
     "node-fetch": "^3.3.2",
     "openai": "^6.10.0"
   }
