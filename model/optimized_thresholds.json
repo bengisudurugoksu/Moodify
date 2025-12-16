@@ -1,0 +1,33 @@
+{
+  "global_threshold": 0.3,
+  "per_class_thresholds": {
+    "admiration": 0.45,
+    "amusement": 0.25,
+    "anger": 0.5,
+    "annoyance": 0.25,
+    "approval": 0.3,
+    "caring": 0.25,
+    "confusion": 0.3,
+    "curiosity": 0.3,
+    "desire": 0.1,
+    "disappointment": 0.15000000000000002,
+    "disapproval": 0.2,
+    "disgust": 0.2,
+    "embarrassment": 0.25,
+    "excitement": 0.35000000000000003,
+    "fear": 0.4,
+    "gratitude": 0.5,
+    "grief": 0.3,
+    "joy": 0.35000000000000003,
+    "love": 0.5,
+    "nervousness": 0.2,
+    "optimism": 0.3,
+    "pride": 0.05,
+    "realization": 0.25,
+    "relief": 0.05,
+    "remorse": 0.35000000000000003,
+    "sadness": 0.4,
+    "surprise": 0.15000000000000002,
+    "neutral": 0.25
+  }
+}

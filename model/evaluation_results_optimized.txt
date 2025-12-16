@@ -1,0 +1,21 @@
+============================================================
+MODEL EVALUATION RESULTS (OPTIMIZED THRESHOLDS)
+============================================================
+
+Default Threshold (0.5):
+  F1 Score:   0.5889 (58.89%)
+  Accuracy:   0.4732 (47.32%)
+  Precision:  0.7126 (71.26%)
+  Recall:     0.5018 (50.18%)
+
+Global Optimized Threshold (0.30):
+  F1 Score:   0.6147 (61.47%)
+  Accuracy:   0.4612 (46.12%)
+  Precision:  0.6021 (60.21%)
+  Recall:     0.6279 (62.79%)
+
+Per-Class Optimized Thresholds:
+  F1 Score:   0.6161 (61.61%)
+  Accuracy:   0.4406 (44.06%)
+  Precision:  0.5834 (58.34%)
+  Recall:     0.6526 (65.26%)
