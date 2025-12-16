@@ -109,7 +109,7 @@ const PlaylistCard = ({ playlist }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: width - 32,
+    width: width - 96,
     alignSelf: 'flex-start',
     marginTop: 12,
     marginBottom: 8,
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: 180,
+    aspectRatio: 1,
     backgroundColor: 'rgba(157, 78, 221, 0.1)',
     position: 'relative',
   },

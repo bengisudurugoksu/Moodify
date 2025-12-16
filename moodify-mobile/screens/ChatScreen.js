@@ -41,6 +41,7 @@ const ChatScreen = ({ onBack, initialText = '' }) => {
 
   const scrollViewRef = useRef(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const featureCards = [
     {
@@ -70,6 +71,28 @@ const ChatScreen = ({ onBack, initialText = '' }) => {
       useNativeDriver: true,
     }).start();
   }, []);
+
+  // Pulse animation for recording
+  useEffect(() => {
+    if (isRecording) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.2,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      pulseAnim.setValue(1);
+    }
+  }, [isRecording]);
 
   // Handle initial text from LandingScreen
   useEffect(() => {
@@ -237,7 +260,10 @@ const ChatScreen = ({ onBack, initialText = '' }) => {
         <ScrollView
           ref={scrollViewRef}
           style={styles.messagesContainer}
-          contentContainerStyle={styles.messagesContent}
+          contentContainerStyle={[
+            styles.messagesContent,
+            messages.length <= 1 && { justifyContent: 'center', flexGrow: 1 }
+          ]}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={scrollToBottom}
         >
@@ -299,33 +325,33 @@ const ChatScreen = ({ onBack, initialText = '' }) => {
               placeholderTextColor="#C4A7E7"
               value={inputValue}
               onChangeText={setInputValue}
-              multiline
               maxLength={500}
               editable={!isLoading}
               underlineColorAndroid="transparent"
-              textAlignVertical="center"
             />
 
-            <TouchableOpacity
-              onPress={handleRecord}
-              style={styles.micButton}
-            >
-              <MicrophoneIcon
-                width={20}
-                height={20}
-                fill="none"
-                stroke={isRecording ? '#9D4EDD' : '#8B5FC7'}
-                strokeWidth={2}
-              />
-
-            </TouchableOpacity>
+            <Animated.View style={{ transform: [{ scale: isRecording ? pulseAnim : 1 }] }}>
+              <TouchableOpacity
+                onPress={handleRecord}
+                style={[styles.micButton, isRecording && styles.micButtonActive]}
+                disabled={isLoading}
+              >
+                <MicrophoneIcon
+                  width={20}
+                  height={20}
+                  fill="none"
+                  stroke={isRecording ? '#FFFFFF' : '#8B5FC7'}
+                  strokeWidth={2}
+                />
+              </TouchableOpacity>
+            </Animated.View>
             <TouchableOpacity
               onPress={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
               activeOpacity={0.7}
-              style={styles.sendButton}
+              style={[styles.sendButton, (isLoading || !inputValue.trim()) && styles.sendButtonDisabled]}
             >
-              <SendIcon width={20} height={20} fill="#9D4EDD" />
+              <SendIcon width={20} height={20} fill={(isLoading || !inputValue.trim()) ? '#C4A7E7' : '#9D4EDD'} />
             </TouchableOpacity>
           </View>
         </View>
@@ -445,6 +471,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 16,
     paddingTop: 12,
+    backgroundColor: 'transparent',
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -457,20 +484,17 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: 'rgba(157, 78, 221, 0.2)',
     shadowColor: '#9D4EDD',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   input: {
     flex: 1,
     fontSize: 14,
     color: '#4A0080',
+    height: 36,
     paddingVertical: 0,
-    paddingTop: 0,
-    paddingBottom: 0,
-    lineHeight: 18,
-    textAlignVertical: 'center',
   },
   micButton: {
     width: 36,
@@ -480,6 +504,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(157, 78, 221, 0.1)',
   },
+  micButtonActive: {
+    backgroundColor: '#9D4EDD',
+    shadowColor: '#9D4EDD',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    elevation: 8,
+  },
   sendButton: {
     width: 36,
     height: 36,
@@ -487,6 +519,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(157, 78, 221, 0.1)',
+  },
+  sendButtonDisabled: {
+    opacity: 0.4,
   },
 });
 
