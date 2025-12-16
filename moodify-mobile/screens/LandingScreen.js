@@ -14,6 +14,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MicrophoneIcon from '../public/microphone.svg';
 import SendIcon from '../public/send.svg';
 import MusicArtistIcon from '../public/music-artist.svg';
+import { Audio } from 'expo-av';
+
 
 const { width } = Dimensions.get('window');
 
@@ -21,7 +23,11 @@ const LandingScreen = ({ onStart }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const translateYAnim = useRef(new Animated.Value(30)).current;
-  const [recording, setRecording] = useState(false);
+
+
+  const [recording, setRecording] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [text, setText] = useState('');
 
   useEffect(() => {
     Animated.parallel([
@@ -46,9 +52,82 @@ const LandingScreen = ({ onStart }) => {
     ]).start();
   }, []);
 
-  const handleRecord = () => {
-    setRecording((prev) => !prev);
+  /* ---------------- Audio Logic ---------------- */
+
+  const startRecording = async () => {
+    try {
+      const { granted } = await Audio.requestPermissionsAsync();
+      if (!granted) {
+        alert('Permission to access microphone is required!');
+        return;
+      }
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+
+      setRecording(recording);
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Failed to start recording', err);
+      alert('Could not start recording');
+    }
   };
+
+  const stopRecording = async () => {
+    if (!recording) return;
+
+    try {
+      setIsRecording(false);
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      setRecording(null);
+
+      if (uri) {
+        await sendAudioToBackend(uri);
+      }
+    } catch (err) {
+      console.error('Failed to stop recording', err);
+      alert('Could not stop recording');
+    }
+  };
+
+  const sendAudioToBackend = async (audioUri) => {
+    try {
+      const formData = new FormData();
+      formData.append('audio', {
+        uri: audioUri,
+        type: 'audio/m4a',
+        name: 'recording.m4a',
+      });
+
+      // Import sendAudio from api.js
+      const { sendAudio } = await import('../utils/api.js');
+      const data = await sendAudio(formData);
+
+      // Set the transcribed text in the input field
+      if (data.text) {
+        setText(data.text);
+      }
+    } catch (err) {
+      console.error('Failed to send audio', err);
+      alert('Could not process audio. Please try again.');
+    }
+  };
+
+  const handleRecord = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
 
   const features = [
     {
@@ -79,7 +158,7 @@ const LandingScreen = ({ onStart }) => {
       colors={['#FAF7FF', '#F0E6FF']}
       style={styles.container}
     >
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -116,6 +195,8 @@ const LandingScreen = ({ onStart }) => {
           >
             <View style={styles.inputWrapper}>
               <TextInput
+                value={text}
+                onChangeText={setText}
                 placeholder="Share your mood..."
                 placeholderTextColor="#C4A7E7"
                 style={styles.input}
@@ -123,10 +204,18 @@ const LandingScreen = ({ onStart }) => {
                 underlineColorAndroid="transparent"
                 textAlignVertical="center"
               />
-              <TouchableOpacity onPress={handleRecord} style={styles.micButton}>
-                <MicrophoneIcon width={20} height={20} fill="none" stroke={recording ? '#9D4EDD' : '#8B5FC7'} strokeWidth={2} />
+
+              <TouchableOpacity onPress={handleRecord} style={[
+                styles.micButton,
+                isRecording && styles.micButtonActive
+              ]}>
+                <MicrophoneIcon width={20} height={20} fill="none" stroke={isRecording ? '#FFFFFF' : '#8B5FC7'} strokeWidth={2} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={onStart} style={styles.sendButton}>
+              <TouchableOpacity onPress={() => {
+                if (text.trim()) {
+                  onStart(text);
+                }
+              }} style={styles.sendButton}>
                 <SendIcon width={20} height={20} fill="#9D4EDD" />
               </TouchableOpacity>
             </View>
@@ -253,14 +342,22 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     paddingTop: 0,
     paddingBottom: 0,
-    lineHeight: 18,
-    textAlignVertical: 'center',
-  },
   micButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(157, 78, 221, 0.1)',
+  },
+  micButtonActive: {
+    backgroundColor: '#9D4EDD',
+    shadowColor: '#9D4EDD',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
+  },justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(157, 78, 221, 0.1)',
   },
@@ -344,4 +441,3 @@ const styles = StyleSheet.create({
 });
 
 export default LandingScreen;
-

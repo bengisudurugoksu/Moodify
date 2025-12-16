@@ -39,3 +39,35 @@ export async function sendMessage(emotion) {
     throw error;
   }
 }
+
+export async function sendAudio(formData) {
+  try {
+    const endpoint = `${CONFIG.API.BASE_URL}/api/speech-to-text`;
+    
+    if (CONFIG.APP.DEBUG) {
+      console.log('🎤 Sending audio to:', endpoint);
+    }
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      body: formData,
+      timeout: CONFIG.API.TIMEOUT,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Speech API Error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    if (CONFIG.APP.DEBUG) {
+      console.log('📥 Transcription received:', data);
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('❌ Speech API Error:', error.message);
+    throw error;
+  }
+}

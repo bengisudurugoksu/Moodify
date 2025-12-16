@@ -9,6 +9,7 @@ SplashScreen.preventAutoHideAsync();
 export default function App() {
   const [appReady, setAppReady] = useState(false);
   const [currentScreen, setCurrentScreen] = useState('landing'); // 'landing' or 'chat'
+  const [initialText, setInitialText] = useState('');
 
   useEffect(() => {
     async function prepare() {
@@ -31,11 +32,13 @@ export default function App() {
     return null;
   }
 
-  const handleStartChat = () => {
+  const handleStartChat = (text = '') => {
+    setInitialText(text);
     setCurrentScreen('chat');
   };
 
   const handleBackToHome = () => {
+    setInitialText('');
     setCurrentScreen('landing');
   };
 
@@ -44,7 +47,7 @@ export default function App() {
       {currentScreen === 'landing' ? (
         <LandingScreen onStart={handleStartChat} />
       ) : (
-        <ChatScreen onBack={handleBackToHome} />
+        <ChatScreen onBack={handleBackToHome} initialText={initialText} />
       )}
     </SafeAreaView>
   );

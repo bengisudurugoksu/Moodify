@@ -15,14 +15,16 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import MessageBubble from '../components/MessageBubble';
 import PlaylistCard from '../components/PlaylistCard';
-import { sendMessage } from '../utils/api';
+import { sendMessage, sendAudio } from '../utils/api';
 import MicrophoneIcon from '../public/microphone.svg';
 import SendIcon from '../public/send.svg';
 import BackIcon from '../public/back.svg';
+import { Audio } from 'expo-av';
+
 
 const { width, height } = Dimensions.get('window');
 
-const ChatScreen = ({ onBack }) => {
+const ChatScreen = ({ onBack, initialText = '' }) => {
   const [messages, setMessages] = useState([
     {
       id: '0',
@@ -34,7 +36,9 @@ const ChatScreen = ({ onBack }) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [playlistData, setPlaylistData] = useState(null);
-  const [recording, setRecording] = useState(false);
+  const [recording, setRecording] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+
   const scrollViewRef = useRef(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -67,6 +71,17 @@ const ChatScreen = ({ onBack }) => {
     }).start();
   }, []);
 
+  // Handle initial text from LandingScreen
+  useEffect(() => {
+    if (initialText && initialText.trim()) {
+      setInputValue(initialText);
+      // Auto-send the initial message
+      setTimeout(() => {
+        handleSendMessageWithText(initialText);
+      }, 300);
+    }
+  }, [initialText]);
+
   const scrollToBottom = () => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   };
@@ -75,8 +90,8 @@ const ChatScreen = ({ onBack }) => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+  const handleSendMessageWithText = async (text) => {
+    if (!text.trim()) return;
 
     Keyboard.dismiss();
 
@@ -84,7 +99,7 @@ const ChatScreen = ({ onBack }) => {
     const userMessage = {
       id: Date.now().toString(),
       type: 'user',
-      text: inputValue,
+      text: text,
       timestamp: new Date(),
     };
 
@@ -95,7 +110,7 @@ const ChatScreen = ({ onBack }) => {
 
     try {
       // Call backend API
-      const response = await sendMessage(inputValue);
+      const response = await sendMessage(text);
 
       if (response && response.message && response.playlists) {
         // Add bot response message
@@ -124,9 +139,67 @@ const ChatScreen = ({ onBack }) => {
     }
   };
 
+  const handleSendMessage = async () => {
+    await handleSendMessageWithText(inputValue);
+  };
+
   const handleRecord = () => {
-    // Handle audio recording logic
-    setRecording((prev) => !prev);
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const permission = await Audio.requestPermissionsAsync();
+      if (!permission.granted) return;
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+
+      setRecording(recording);
+      setIsRecording(true);
+    } catch (err) {
+      console.error('🎤 Start recording error:', err);
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!recording) return;
+
+    try {
+      setIsRecording(false);
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      setRecording(null);
+
+      if (uri) {
+        const formData = new FormData();
+        formData.append('audio', {
+          uri: uri,
+          type: 'audio/m4a',
+          name: 'recording.m4a',
+        });
+
+        const data = await sendAudio(formData);
+        
+        // Set the transcribed text in the input field
+        if (data.text) {
+          setInputValue(data.text);
+        }
+      }
+    } catch (err) {
+      console.error('🎤 Stop recording error:', err);
+      alert('Could not process audio. Please try again.');
+    }
   };
 
   const handleFeatureCardPress = (card) => {
@@ -237,7 +310,14 @@ const ChatScreen = ({ onBack }) => {
               onPress={handleRecord}
               style={styles.micButton}
             >
-              <MicrophoneIcon width={20} height={20} fill="none" stroke={recording ? '#9D4EDD' : '#8B5FC7'} strokeWidth={2} />
+              <MicrophoneIcon
+                width={20}
+                height={20}
+                fill="none"
+                stroke={isRecording ? '#9D4EDD' : '#8B5FC7'}
+                strokeWidth={2}
+              />
+
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleSendMessage}
