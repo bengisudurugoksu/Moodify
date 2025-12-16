@@ -2,7 +2,7 @@
 import numpy as np
 import torch
 from datasets import load_dataset
-from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
+from transformers import BertTokenizer, BertForSequenceClassification
 from sklearn.metrics import f1_score
 
 labels = [
@@ -18,8 +18,14 @@ dataset = load_dataset("go_emotions")
 test = dataset["test"]
 
 print("📌 Loading tokenizer + model...")
-tokenizer = DistilBertTokenizer.from_pretrained("./model")
-model = DistilBertForSequenceClassification.from_pretrained("./model")
+
+MODEL_PATH = "./modelsequence"   # <- BERT modelinin olduğu klasör
+tokenizer = BertTokenizer.from_pretrained(MODEL_PATH)
+model = BertForSequenceClassification.from_pretrained(MODEL_PATH)
+
+model.eval()
+model.to("cpu")
+torch.set_num_threads(4)
 
 # test ifadelerini tokenize et
 def tokenize(batch):
@@ -27,11 +33,11 @@ def tokenize(batch):
         batch["text"],
         truncation=True,
         padding="max_length",
-        max_length=128
+        max_length=64
     )
 
 print("📌 Tokenizing...")
-test_enc = test.map(tokenize, batched=True)
+test_enc = test.map(tokenize, batched=True, load_from_cache_file=False)
 
 # tensora çevir
 input_ids = torch.tensor(test_enc["input_ids"])
@@ -51,7 +57,7 @@ for i, labs in enumerate(test["labels"]):
 print("📌 Running model on test set...")
 with torch.no_grad():
     logits = []
-    bs = 32
+    bs = 64
     for i in range(0, len(test), bs):
         out = model(
             input_ids[i:i+bs],

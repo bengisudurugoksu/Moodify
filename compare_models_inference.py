@@ -117,6 +117,77 @@ bert_model.eval()
 distil_metrics = evaluate_model(distil_model, distil_tokenizer, "DistilBERT")
 bert_metrics   = evaluate_model(bert_model, bert_tokenizer, "BERT-base")
 
+def plot_single_model(metrics, model_name, filename, color):
+    labels_main = ["F1_micro", "Accuracy", "Precision", "Recall"]
+
+    fig = plt.figure(figsize=(18, 12))
+
+    # --- 1. Main Performance Metrics ---
+    ax1 = plt.subplot(2, 2, 1)
+    values = [metrics[k] for k in labels_main]
+
+    ax1.bar(["F1", "Accuracy", "Precision", "Recall"], values,
+            color=color, edgecolor="black")
+    ax1.set_ylim(0, 100)
+    ax1.set_title(f"{model_name} – Main Performance Metrics")
+    ax1.set_ylabel("Score (%)")
+    ax1.grid(axis="y", alpha=0.3)
+
+    # --- 2. F1 Comparison ---
+    ax2 = plt.subplot(2, 2, 2)
+    f1_vals = [
+        metrics["F1_micro"],
+        metrics["F1_macro"],
+        metrics["F1_weighted"]
+    ]
+
+    ax2.bar(["Micro", "Macro", "Weighted"], f1_vals,
+            color=color, edgecolor="black")
+    ax2.set_ylim(0, 100)
+    ax2.set_title(f"{model_name} – F1 Score Comparison")
+    ax2.set_ylabel("F1 Score (%)")
+    ax2.grid(axis="y", alpha=0.3)
+
+    # --- 3. Radar Chart ---
+    ax3 = plt.subplot(2, 2, 3, polar=True)
+    radar_labels = ["F1", "Accuracy", "Precision", "Recall"]
+    angles = np.linspace(0, 2 * np.pi, len(radar_labels), endpoint=False)
+    angles = np.concatenate([angles, [angles[0]]])
+
+    radar_vals = values + values[:1]
+
+    ax3.plot(angles, radar_vals, color=color, linewidth=2)
+    ax3.fill(angles, radar_vals, alpha=0.3, color=color)
+    ax3.set_thetagrids(angles[:-1] * 180/np.pi, radar_labels)
+    ax3.set_ylim(0, 100)
+    ax3.set_title(f"{model_name} – Performance Radar")
+
+    # --- 4. Table ---
+    ax4 = plt.subplot(2, 2, 4)
+    ax4.axis("off")
+
+    table_data = [
+        ["Metric", "Score"],
+        ["F1 (Micro)", f"{metrics['F1_micro']:.2f}%"],
+        ["F1 (Macro)", f"{metrics['F1_macro']:.2f}%"],
+        ["Accuracy", f"{metrics['Accuracy']:.2f}%"],
+        ["Precision", f"{metrics['Precision']:.2f}%"],
+        ["Recall", f"{metrics['Recall']:.2f}%"],
+    ]
+
+    table = ax4.table(cellText=table_data[1:],
+                      colLabels=table_data[0],
+                      loc="center",
+                      cellLoc="center")
+    table.scale(1, 2)
+    ax4.set_title(f"{model_name} – Detailed Summary")
+
+    plt.tight_layout()
+    plt.savefig(filename, dpi=300)
+    plt.close()
+
+    print(f"✅ Saved: {filename}")
+
 # =========================
 # PLOTTING
 # =========================
@@ -202,6 +273,22 @@ ax4.set_title("Detailed Performance Summary")
 
 plt.tight_layout()
 plt.savefig("distilbert_vs_bert_comparison.png", dpi=300)
-plt.show()
+
+# =========================
+# SINGLE MODEL FIGURES
+# =========================
+plot_single_model(
+    distil_metrics,
+    model_name="DistilBERT (Baseline)",
+    filename="distilbert_performance.png",
+    color="#9D4EDD"
+)
+
+plot_single_model(
+    bert_metrics,
+    model_name="BERT-base (Final Model)",
+    filename="bert_performance.png",
+    color="#C77DFF"
+)
 
 print("\n✅ Saved: distilbert_vs_bert_comparison.png")
